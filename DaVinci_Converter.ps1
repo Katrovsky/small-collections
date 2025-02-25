@@ -38,6 +38,15 @@ function Select-File {
     return $null
 }
 
+function Format-FileName {
+    param ([string]$FileName)
+    $FileName = $FileName -replace "\s*\[[^\]]+\]\s*", " "
+    $FileName = $FileName -replace "[^a-zA-Z0-9_]+", "_"
+    $FileName = $FileName -replace "_+", "_"
+    $FileName = $FileName.Trim("_")
+    return $FileName
+}
+
 function Convert-Video {
     param (
         [string]$InputFile,
@@ -51,13 +60,13 @@ function Convert-Video {
     Write-Host "Конвертация завершена: $OutputFile.$Format" -ForegroundColor Green
 }
 
-# Основной запуск
 $inputFile = Select-File
 if ($inputFile) {
     $outputFile = Read-Host "Введите имя выходного файла без расширения (оставьте пустым для автогенерации)"
     if (-not $outputFile) {
         $outputFile = [System.IO.Path]::GetFileNameWithoutExtension($inputFile) + "_Converted"
     }
+    $outputFile = Format-FileName -FileName $outputFile
     Convert-Video -InputFile $inputFile -OutputFile $outputFile
 } else {
     Write-Host "Файл не выбран." -ForegroundColor Red
